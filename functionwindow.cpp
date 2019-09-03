@@ -226,6 +226,8 @@ void FunctionWindow::initSlots()
 
                 }
 
+                file -> initPtrScore();
+
                 for(int i = 0; i < 10; i ++)
                 {
                     listDlg[i] -> setAttribute(Qt::WA_DeleteOnClose);
@@ -242,7 +244,7 @@ void FunctionWindow::initSlots()
                         listLine[j + i * (file -> arrSize)] -> setPlaceholderText(QString("分数"));
                         QString *score = new QString;
                         *score = listLine[j + i * (file -> arrSize)] -> text();
-                        file -> scoring(*score, i, j);
+                        file -> inputScore(*score, i, j);
 
                         listHLay[j + i * (file -> arrSize)] -> addStretch();
                         listHLay[j + i * (file -> arrSize)] -> addWidget(listLabel[j + i * (file -> arrSize)]);

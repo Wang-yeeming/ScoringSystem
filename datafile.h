@@ -5,20 +5,22 @@
 #include <QDebug>
 #include <QFile>
 #include <QList>
+#include <QMap>
 
 class DataFile: public QFile
 {
 private:
-    void arrSort();
+    void staScore();
 
 public:
     int *arr;
     int number;
     int arrSize;
-    QList <QString**> pScore;
+    double **pScore;
     QList <QString*> pName;
 
-    void scoring(QString, int, int);
+    void initPtrScore();
+    void inputScore(QString, int, int);
     void inputData(QString*, QString*, QString*);
     QString outputData();
 

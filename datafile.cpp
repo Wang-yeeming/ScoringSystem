@@ -51,8 +51,79 @@ QString DataFile::outputData()
     return *data;
 }
 
-void DataFile::scoring(QString s, int i, int j)
+void DataFile::inputScore(QString s, int i, int j)
 {
-    pScore << new QString*;
-    *pScore[i][j] = s;
+    pScore[i][j] = s.toDouble();
+}
+
+void DataFile::initPtrScore()
+{
+    pScore = new double *[10];
+    for (int i = 0; i < 10; i ++)
+        pScore[i] = new double[unsigned(arrSize)];
+}
+
+void DataFile::staScore()
+{
+    double *arrAdverge = new double[10];
+    double max = 0;
+    double min = 0;
+    int posMax = 0;
+    int posMin = 0;
+
+    for (int i = 0; i < 10; i ++)
+    {
+        for (int j = 0; j < arrSize; j ++)
+        {
+            if (max < pScore[i][j])
+            {
+                max = pScore[i][j];
+                posMax = j;
+            }
+
+            if (min > pScore[i][j])
+            {
+                min = pScore[i][j];
+                posMin = j;
+            }
+
+        }
+
+        double sum = 0;
+
+        for (int j = 0; j < arrSize; j ++)
+        {
+            if((j == posMax) || (j == posMin))
+                continue;
+            else
+                sum += pScore[i][j];
+
+        }
+
+        arrAdverge[i] = sum / 10;
+
+    }
+
+    double temp;
+    QString *qtemp = new QString;
+
+    for (int i = 0; i < 9; i ++)
+    {
+        for (int j = 0; j < 9 - i; j ++)
+        {
+            if(arrAdverge[j] < arrAdverge[j + 1])
+            {
+                temp = arrAdverge[j];
+                arrAdverge[j] = arrAdverge[j + 1];
+                arrAdverge[j + 1] = temp;
+
+                qtemp = pName[j];
+                pName[j] = pName[j + 1];
+                pName[j + 1] = qtemp;
+            }
+        }
+    }
+
+    delete [] arrAdverge;
+    delete qtemp;
 }
