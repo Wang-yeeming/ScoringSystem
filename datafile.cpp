@@ -3,7 +3,6 @@
 DataFile::DataFile()
 {
     number = 0;
-    arr = new int;
 
     QFile file("./DataFile.txt");
     if(file.exists())
@@ -12,7 +11,6 @@ DataFile::DataFile()
 
 DataFile::~DataFile()
 {
-    delete [] arr;
     qDeleteAll(pName);
     qDebug() << "数据文件类被析构";
 }
@@ -21,7 +19,6 @@ void DataFile::inputData(QString *name, QString *sex, QString *age)
 {
     pName << new QString;
     *pName[number] = *name;
-    arr[number] = number + 1;
     number ++;
     arrSize = number;
 
@@ -105,7 +102,7 @@ void DataFile::staScore()
     }
 
     double temp;
-    QString *qtemp = new QString;
+    QString qtemp;
 
     for (int i = 0; i < 9; i ++)
     {
@@ -117,13 +114,18 @@ void DataFile::staScore()
                 arrAdverge[j] = arrAdverge[j + 1];
                 arrAdverge[j + 1] = temp;
 
-                qtemp = pName[j];
-                pName[j] = pName[j + 1];
-                pName[j + 1] = qtemp;
+                qtemp = *pName[j];
+                *pName[j] = *pName[j + 1];
+                *pName[j + 1] = qtemp;
             }
         }
     }
 
     delete [] arrAdverge;
-    delete qtemp;
+}
+
+QString DataFile::outputSta(int i)
+{
+    staScore();
+    return *pName[i];
 }

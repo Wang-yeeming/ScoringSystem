@@ -13,7 +13,6 @@ private:
     void staScore();
 
 public:
-    int *arr;
     int number;
     int arrSize;
     double **pScore;
@@ -22,6 +21,7 @@ public:
     void initPtrScore();
     void inputScore(QString, int, int);
     void inputData(QString*, QString*, QString*);
+    QString outputSta(int);
     QString outputData();
 
     DataFile();

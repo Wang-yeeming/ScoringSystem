@@ -316,6 +316,44 @@ void FunctionWindow::initSlots()
             );
 
     //查看选手排名按钮槽函数
+    connect(btnSort, &QPushButton::pressed,
+            [this]()
+            {
+                QDialog *self = new QDialog;
+                self -> setAttribute(Qt::WA_DeleteOnClose);
+                self -> setWindowTitle(QString("选手排名"));
+                self -> setWindowFlags(Qt::WindowCloseButtonHint);
+                self -> resize(200, 150);
+
+                QTextEdit *text = new QTextEdit();
+                text -> setText(QString("选手排名如下："));
+                for (int i = 0; i < (file -> arrSize); i ++)
+                    text -> append(QString("第")
+                                         + QString::number(i + 1)
+                                         + QString("名：")
+                                         + file -> outputSta(i));
+                text -> setReadOnly(1);
+
+                QPushButton *btnBack = new QPushButton(QString("返回"));
+                connect(btnBack, &QPushButton::pressed, self, &FunctionWindow::close);
+
+                QHBoxLayout *hLay1 = new QHBoxLayout;
+                hLay1 -> addStretch();
+                hLay1 -> addWidget(btnBack);
+                hLay1 -> addStretch();
+
+                QVBoxLayout *vLay1 = new QVBoxLayout;
+                vLay1 -> addWidget(text);
+                vLay1 -> addLayout(hLay1);
+
+                self -> setLayout(vLay1);
+
+                self -> exec();
+            }
+
+
+            );
+
     //退出按钮槽函数
     connect(btnQuit, &QPushButton::pressed, this, &FunctionWindow::close);
 
