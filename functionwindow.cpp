@@ -215,7 +215,6 @@ void FunctionWindow::initSlots()
                     mLay << new QVBoxLayout();
                     vLay << new QVBoxLayout();
                     btnNext << new QPushButton(QString("评分完毕"));
-                    connect(btnNext[i], &QPushButton::pressed, listDlg[i], &FunctionWindow::close);
 
                     for(int j = 0; j < (file -> arrSize); j ++)
                     {
@@ -226,7 +225,7 @@ void FunctionWindow::initSlots()
 
                 }
 
-                file -> initPtrScore();
+                file -> initPtrScore();                 //给二级指针动态分配空间
 
                 for(int i = 0; i < 10; i ++)
                 {
@@ -239,12 +238,9 @@ void FunctionWindow::initSlots()
                     for(int j = 0; j < (file -> arrSize); j ++)
                     {
                         listLabel[j + i * (file -> arrSize)] -> setAlignment(Qt::AlignLeft);
-                        listLabel[j + i * (file -> arrSize)] -> setText(*(file -> pName[j]) + "：");
+                        listLabel[j + i * (file -> arrSize)] -> setText((file -> arrName[j]) + "：");
 
                         listLine[j + i * (file -> arrSize)] -> setPlaceholderText(QString("分数"));
-                        QString *score = new QString;
-                        *score = listLine[j + i * (file -> arrSize)] -> text();
-                        file -> inputScore(*score, i, j);
 
                         listHLay[j + i * (file -> arrSize)] -> addStretch();
                         listHLay[j + i * (file -> arrSize)] -> addWidget(listLabel[j + i * (file -> arrSize)]);
@@ -269,9 +265,27 @@ void FunctionWindow::initSlots()
 
                     listDlg[i] -> setLayout(mLay[i]);
 
+                    connect(btnNext[i], &QPushButton::pressed,                  //传递分数
+                            [this, listLine, listDlg, i]()
+                            {
+                                for(int j = 0; j < (file -> arrSize); j ++)
+                                {
+                                    QString *score = new QString;
+                                    *score = listLine[j + i * (file -> arrSize)] -> text();
+                                    //qDebug() << *score;
+                                    file -> inputScore(*score, i, j);
+                                    listDlg[i] -> close();
+                                }
+                            }
+
+
+                            );
+
                     listDlg[i] -> exec();
 
                 }
+
+                file -> staScore();                 //分析分数
 
                 QMessageBox::about(this, "提示", "现在所有评委均已评分完毕！");
             }
@@ -331,7 +345,7 @@ void FunctionWindow::initSlots()
                     text -> append(QString("第")
                                          + QString::number(i + 1)
                                          + QString("名：")
-                                         + file -> outputSta(i));
+                                         + file -> arrName[i]);
                 text -> setReadOnly(1);
 
                 QPushButton *btnBack = new QPushButton(QString("返回"));

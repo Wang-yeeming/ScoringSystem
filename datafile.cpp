@@ -11,14 +11,13 @@ DataFile::DataFile()
 
 DataFile::~DataFile()
 {
-    qDeleteAll(pName);
     qDebug() << "数据文件类被析构";
 }
 
+//写入数据文件
 void DataFile::inputData(QString *name, QString *sex, QString *age)
 {
-    pName << new QString;
-    *pName[number] = *name;
+    arrName[number] = *name;
     number ++;
     arrSize = number;
 
@@ -26,7 +25,7 @@ void DataFile::inputData(QString *name, QString *sex, QString *age)
     pFile -> open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
     pFile -> write("-----------------\n"
                   "编号：");
-    pFile -> putChar(char(number));
+    pFile -> putChar(char(number + '0'));
     pFile -> write("\n姓名：");
     pFile -> write(name -> toUtf8());
     pFile -> write("\n性别：");
@@ -38,6 +37,7 @@ void DataFile::inputData(QString *name, QString *sex, QString *age)
     pFile -> close();
 }
 
+//读取数据文件
 QString DataFile::outputData()
 {
     QFile *pFile = new QFile("./DataFile.txt");
@@ -50,82 +50,92 @@ QString DataFile::outputData()
 
 void DataFile::inputScore(QString s, int i, int j)
 {
-    pScore[i][j] = s.toDouble();
+    pScore[j][i] = s.toDouble();
 }
 
 void DataFile::initPtrScore()
 {
-    pScore = new double *[10];
-    for (int i = 0; i < 10; i ++)
-        pScore[i] = new double[unsigned(arrSize)];
+    pScore = new double *[unsigned(arrSize)];
+    for (int i = 0; i < arrSize; i ++)
+        pScore[i] = new double[10];
 }
 
+//分数统计
 void DataFile::staScore()
 {
-    double *arrAdverge = new double[10];
-    double max = 0;
-    double min = 0;
-    int posMax = 0;
-    int posMin = 0;
+    double *arrAverge = new double[unsigned(arrSize)];
+    double max;
+    double min;
+    int *posMax = new int[unsigned(arrSize)];
+    int *posMin = new int[unsigned(arrSize)];
 
-    for (int i = 0; i < 10; i ++)
+    for (int i = 0; i < arrSize; i ++)                   //寻找最值
     {
-        for (int j = 0; j < arrSize; j ++)
+        max = -1;
+        min = 1000;
+        for (int j = 0; j < 10; j ++)
         {
             if (max < pScore[i][j])
             {
                 max = pScore[i][j];
-                posMax = j;
+                posMax[i] = j;
             }
 
             if (min > pScore[i][j])
             {
                 min = pScore[i][j];
-                posMin = j;
+                posMin[i] = j;
             }
 
         }
 
+    }
+
+    for (int i = 0; i < arrSize; i ++)                   //求平均分
+    {
         double sum = 0;
 
-        for (int j = 0; j < arrSize; j ++)
+        for (int j = 0; j < 10; j ++)
         {
-            if((j == posMax) || (j == posMin))
+            if((j == posMax[i]) || (j == posMin[i]))
                 continue;
             else
                 sum += pScore[i][j];
 
         }
 
-        arrAdverge[i] = sum / 10;
+        arrAverge[i] = sum / 8;
 
     }
 
     double temp;
     QString qtemp;
 
-    for (int i = 0; i < 9; i ++)
+    for (int i = 0; i < (arrSize - 1); i ++)                //排序
     {
-        for (int j = 0; j < 9 - i; j ++)
+        for (int j = 0; j < (arrSize - 1 - i); j ++)
         {
-            if(arrAdverge[j] < arrAdverge[j + 1])
+            if (arrAverge[j] < arrAverge[j + 1])
             {
-                temp = arrAdverge[j];
-                arrAdverge[j] = arrAdverge[j + 1];
-                arrAdverge[j + 1] = temp;
+                temp = arrAverge[j];
+                arrAverge[j] = arrAverge[j + 1];
+                arrAverge[j + 1] = temp;
 
-                qtemp = *pName[j];
-                *pName[j] = *pName[j + 1];
-                *pName[j + 1] = qtemp;
+                qtemp = arrName[j];
+                arrName[j] = arrName[j + 1];
+                arrName[j + 1] = qtemp;
             }
         }
     }
 
-    delete [] arrAdverge;
+    delete [] arrAverge;
+    delete [] posMax;
+    delete [] posMin;
 }
 
-QString DataFile::outputSta(int i)
-{
-    staScore();
-    return *pName[i];
-}
+//输出排名
+//QString DataFile::outputSta(int i)
+//{
+//    this -> staScore();
+//    return arrName[i];
+//}
