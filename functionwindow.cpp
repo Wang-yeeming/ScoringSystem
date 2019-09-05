@@ -2,6 +2,7 @@
 
 FunctionWindow::FunctionWindow()
 {
+    flag = 0;
     file = new DataFile;
     this -> initUI();
     this -> initSlots();
@@ -195,6 +196,15 @@ void FunctionWindow::initSlots()
     connect(btnScoring, &QPushButton::pressed,
             [this]()
             {
+                if (flag)
+                {
+                    QMessageBox::warning(this, QString("警告"),
+                                         QString("将清空之前的评分重新评分，是否继续？"),
+                                         QMessageBox::Yes, QMessageBox::No);
+//                    if (QMessageBox::No)
+//                        ;
+                }
+
                 QList <QDialog*> listDlg;
                 QList <QLabel*> content;
                 QList <QHBoxLayout*> hLay1;
@@ -288,6 +298,8 @@ void FunctionWindow::initSlots()
                 file -> staScore();                 //分析分数
 
                 QMessageBox::about(this, "提示", "现在所有评委均已评分完毕！");
+
+                flag = 1;
             }
 
             );
@@ -340,12 +352,16 @@ void FunctionWindow::initSlots()
                 self -> resize(200, 150);
 
                 QTextEdit *text = new QTextEdit();
-                text -> setText(QString("选手排名如下："));
+                text -> setText(QString("选手排名如下：\n"
+                                        "------------"));
                 for (int i = 0; i < (file -> arrSize); i ++)
                     text -> append(QString("第")
                                          + QString::number(i + 1)
                                          + QString("名：")
-                                         + file -> arrName[i]);
+                                         + file -> arrName[i]
+                                         + QString("  ")
+                                         + QString::number(file -> arrAverge[i])
+                                         + QString("分"));
                 text -> setReadOnly(1);
 
                 QPushButton *btnBack = new QPushButton(QString("返回"));

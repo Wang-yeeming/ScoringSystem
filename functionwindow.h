@@ -24,6 +24,7 @@ class FunctionWindow: public QMainWindow
 {
     Q_OBJECT
 private:
+    int flag;
     QMenu *menu;
     QAction *pHelp;
     QAction *pAbout;

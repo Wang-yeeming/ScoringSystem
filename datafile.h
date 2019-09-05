@@ -13,6 +13,7 @@ private:
 public:
     int number;
     int arrSize;
+    double *arrAverge;
     double **pScore;
     QString arrName[500];
 
@@ -20,7 +21,6 @@ public:
     void initPtrScore();
     void inputScore(QString, int, int);
     void inputData(QString*, QString*, QString*);
-    QString outputSta(int);
     QString outputData();
 
     DataFile();

@@ -11,6 +11,8 @@ DataFile::DataFile()
 
 DataFile::~DataFile()
 {
+    delete [] arrAverge;
+    delete [] pScore;
     qDebug() << "数据文件类被析构";
 }
 
@@ -63,7 +65,7 @@ void DataFile::initPtrScore()
 //分数统计
 void DataFile::staScore()
 {
-    double *arrAverge = new double[unsigned(arrSize)];
+    arrAverge = new double[unsigned(arrSize)];
     double max;
     double min;
     int *posMax = new int[unsigned(arrSize)];
@@ -128,14 +130,6 @@ void DataFile::staScore()
         }
     }
 
-    delete [] arrAverge;
     delete [] posMax;
     delete [] posMin;
 }
-
-//输出排名
-//QString DataFile::outputSta(int i)
-//{
-//    this -> staScore();
-//    return arrName[i];
-//}
