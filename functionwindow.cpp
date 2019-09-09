@@ -2,7 +2,8 @@
 
 FunctionWindow::FunctionWindow()
 {
-    flag = false;
+    flgInfo = false;
+    flgScore = false;
     file = new DataFile;
     this -> initUI();
     this -> initSlots();
@@ -100,7 +101,7 @@ void FunctionWindow::initSlots()
             [this]()
             {
                 QMessageBox::question(this, "帮助", "使用说明：\n"
-                                                  "输入选手信息完成后，即可开始评分。",
+                                                  "正确录入选手信息后，即可点击评分按钮开始评分。",
                                       QMessageBox::Ok);
             }
 
@@ -152,13 +153,14 @@ void FunctionWindow::initSlots()
                             if(name -> isEmpty()
                                     || sex -> isEmpty()
                                     || age -> isEmpty() )
-                                QMessageBox::warning(dlgInputData, "警告", "输入的信息不能为空！");
+                                QMessageBox::warning(dlgInputData, "警告", "输入的信息不能为空！", QMessageBox::Ok);
                             else
                             {
                                 file -> inputData(name, sex, age);
                                 pName -> clear();
                                 pSex -> clear();
                                 pAge -> clear();
+                                flgInfo = true;
                             }
                         }
 
@@ -194,119 +196,136 @@ void FunctionWindow::initSlots()
     connect(btnScoring, &QPushButton::pressed,
             [this]()
             {
-                if (flag)
-                {
-                    QMessageBox::warning(this, QString("警告"),
-                                         QString("将清空之前的评分重新评分，是否继续？"),
-                                         QMessageBox::Yes, QMessageBox::No);
-                    if (QMessageBox::Yes)
-                        flag = false;
-                }
+                if (!flgInfo)
+                    QMessageBox::critical(this, QString("错误"), QString("尚未录入选手信息！"), QMessageBox::Ok);
 
-                if (!flag)
+                else
                 {
-                    QList <QDialog*> listDlg;
-                    QList <QLabel*> content;
-                    QList <QHBoxLayout*> hLay1;
-                    QList <QHBoxLayout*> hLay2;
-                    QList <QVBoxLayout*> mLay;
-                    QList <QVBoxLayout*> vLay;
-                    QList <QLabel*> listLabel;
-                    QList <QLineEdit*> listLine;
-                    QList <QHBoxLayout*> listHLay;
-                    QList <QPushButton*> btnNext;
-
-                    for(int i = 0; i < 10; i ++)
+                    if (flgScore)
                     {
-                        listDlg << new QDialog();
-                        content << new QLabel(listDlg[i]);
-                        hLay1 << new QHBoxLayout();
-                        hLay2 << new QHBoxLayout();
-                        mLay << new QVBoxLayout();
-                        vLay << new QVBoxLayout();
-                        btnNext << new QPushButton(QString("评分完毕"));
+                        QMessageBox::StandardButton result = QMessageBox::warning(this, QString("警告"),
+                                             QString("将清空之前的评分重新评分，是否继续？"),
+                                             QMessageBox::Yes | QMessageBox::No);
 
-                        for(int j = 0; j < (file -> arrSize); j ++)
+                        switch (result)
                         {
-                            listLabel << new QLabel();
-                            listLine << new QLineEdit();
-                            listHLay << new QHBoxLayout();
+                            case QMessageBox::Yes:
+                                flgScore = false;
+                                break;
+                            case QMessageBox::No:
+                                break;
+                            default:
+                                break;
                         }
-
                     }
 
-                    file -> initPtrScore();                 //给二级指针动态分配空间
-
-                    for(int i = 0; i < 10; i ++)
+                    if (!flgScore)
                     {
-                        listDlg[i] -> setAttribute(Qt::WA_DeleteOnClose);
-                        listDlg[i] -> setWindowTitle(QString("评分"));
-                        listDlg[i] -> setWindowFlags(Qt::WindowCloseButtonHint);
+                        QList <QDialog*> listDlg;
+                        QList <QLabel*> content;
+                        QList <QHBoxLayout*> hLay1;
+                        QList <QHBoxLayout*> hLay2;
+                        QList <QVBoxLayout*> mLay;
+                        QList <QVBoxLayout*> vLay;
+                        QList <QLabel*> listLabel;
+                        QList <QLineEdit*> listLine;
+                        QList <QHBoxLayout*> listHLay;
+                        QList <QPushButton*> btnNext;
 
-                        content[i] -> setText("现在请第 " + QString::number(i + 1) + " 位评委评分！");
-
-                        for(int j = 0; j < (file -> arrSize); j ++)
+                        for(int i = 0; i < 10; i ++)
                         {
-                            listLabel[j + i * (file -> arrSize)] -> setAlignment(Qt::AlignLeft);
-                            listLabel[j + i * (file -> arrSize)] -> setText((file -> arrName[j]) + "：");
+                            listDlg << new QDialog();
+                            content << new QLabel(listDlg[i]);
+                            hLay1 << new QHBoxLayout();
+                            hLay2 << new QHBoxLayout();
+                            mLay << new QVBoxLayout();
+                            vLay << new QVBoxLayout();
+                            btnNext << new QPushButton(QString("评分完毕"));
 
-                            listLine[j + i * (file -> arrSize)] -> setPlaceholderText(QString("分数"));
+                            for(int j = 0; j < (file -> arrSize); j ++)
+                            {
+                                listLabel << new QLabel();
+                                listLine << new QLineEdit();
+                                listHLay << new QHBoxLayout();
+                            }
 
-                            listHLay[j + i * (file -> arrSize)] -> addStretch();
-                            listHLay[j + i * (file -> arrSize)] -> addWidget(listLabel[j + i * (file -> arrSize)]);
-                            listHLay[j + i * (file -> arrSize)] -> addStretch();
-                            listHLay[j + i * (file -> arrSize)] -> addWidget(listLine[j + i * (file -> arrSize)]);
-                            listHLay[j + i * (file -> arrSize)] -> addStretch();
-
-                            vLay[i] -> addLayout(listHLay[j + i * (file -> arrSize)]);
                         }
 
-                        hLay1[i] -> addStretch();
-                        hLay1[i] -> addWidget(content[i]);
-                        hLay1[i] -> addStretch();
+                        file -> initPtrScore();                 //给二级指针动态分配空间
 
-                        hLay2[i] -> addStretch();
-                        hLay2[i] -> addWidget(btnNext[i]);
-                        hLay2[i] -> addStretch();
+                        for(int i = 0; i < 10; i ++)
+                        {
+                            listDlg[i] -> setAttribute(Qt::WA_DeleteOnClose);
+                            listDlg[i] -> setWindowTitle(QString("评分"));
+                            listDlg[i] -> setWindowFlags(Qt::WindowCloseButtonHint);
 
-                        mLay[i] -> addLayout(hLay1[i]);
-                        mLay[i] -> addLayout(vLay[i]);
-                        mLay[i] -> addLayout(hLay2[i]);
+                            content[i] -> setText("现在请第 " + QString::number(i + 1) + " 位评委评分！");
 
-                        listDlg[i] -> setLayout(mLay[i]);
+                            for(int j = 0; j < (file -> arrSize); j ++)
+                            {
+                                listLabel[j + i * (file -> arrSize)] -> setAlignment(Qt::AlignLeft);
+                                listLabel[j + i * (file -> arrSize)] -> setText((file -> arrName[j]) + "：");
 
-                        connect(btnNext[i], &QPushButton::pressed,                  //传递分数
-                                [this, listLine, listDlg, i]()
-                                {
-                                    for(int j = 0; j < (file -> arrSize); j ++)
+                                listLine[j + i * (file -> arrSize)] -> setPlaceholderText(QString("分数"));
+
+                                listHLay[j + i * (file -> arrSize)] -> addStretch();
+                                listHLay[j + i * (file -> arrSize)] -> addWidget(listLabel[j + i * (file -> arrSize)]);
+                                listHLay[j + i * (file -> arrSize)] -> addStretch();
+                                listHLay[j + i * (file -> arrSize)] -> addWidget(listLine[j + i * (file -> arrSize)]);
+                                listHLay[j + i * (file -> arrSize)] -> addStretch();
+
+                                vLay[i] -> addLayout(listHLay[j + i * (file -> arrSize)]);
+                            }
+
+                            hLay1[i] -> addStretch();
+                            hLay1[i] -> addWidget(content[i]);
+                            hLay1[i] -> addStretch();
+
+                            hLay2[i] -> addStretch();
+                            hLay2[i] -> addWidget(btnNext[i]);
+                            hLay2[i] -> addStretch();
+
+                            mLay[i] -> addLayout(hLay1[i]);
+                            mLay[i] -> addLayout(vLay[i]);
+                            mLay[i] -> addLayout(hLay2[i]);
+
+                            listDlg[i] -> setLayout(mLay[i]);
+
+                            connect(btnNext[i], &QPushButton::pressed,                  //传递分数
+                                    [this, listLine, listDlg, i]()
                                     {
-                                        QString *score = new QString;
-                                        *score = listLine[j + i * (file -> arrSize)] -> text();
-                                        //qDebug() << *score;
-                                        if (score -> isEmpty())
-                                            QMessageBox::warning(listDlg[i], "警告", "请为每一位选手都打上分数！");
-                                        else
+                                        for(int j = 0; j < (file -> arrSize); j ++)
                                         {
-                                            file -> inputScore(*score, i, j);
-                                            listDlg[i] -> close();
+                                            QString *score = new QString;
+                                            *score = listLine[j + i * (file -> arrSize)] -> text();
+                                            //qDebug() << *score;
+                                            if (score -> isEmpty())
+                                                QMessageBox::warning(listDlg[i], "警告", "请为每一位选手都打上分数！");
+                                            else
+                                            {
+                                                file -> inputScore(*score, i, j);
+                                                listDlg[i] -> close();
+                                            }
+
                                         }
-
                                     }
-                                }
 
 
-                                );
+                                    );
 
-                        listDlg[i] -> exec();
+                            listDlg[i] -> exec();
 
+                        }
+
+                        file -> staScore();                 //分析分数
+
+                        QMessageBox::about(this, "提示", "现在所有评委均已评分完毕！");
+
+                        flgScore = true;
                     }
-
-                    file -> staScore();                 //分析分数
-
-                    QMessageBox::about(this, "提示", "现在所有评委均已评分完毕！");
-
-                    flag = true;
                 }
+
+
 
             }
 
@@ -316,34 +335,38 @@ void FunctionWindow::initSlots()
     connect(btnCheck, &QPushButton::pressed,
             [this]()
             {
-                QDialog *self = new QDialog();
-                self -> setAttribute(Qt::WA_DeleteOnClose);
-                self -> setWindowTitle(QString("选手信息"));
-                self -> setWindowFlags(Qt::WindowCloseButtonHint);
-                self -> resize(200, 150);
+                if (!flgInfo)
+                    QMessageBox::critical(this, QString("错误"), QString("尚未录入选手信息！"), QMessageBox::Ok);
 
-                QTextEdit *text = new QTextEdit();
-                if((file -> outputData()).isEmpty())
-                    text -> setText(QString("尚未录入选手信息！"));
                 else
+                {
+                    QDialog *self = new QDialog();
+                    self -> setAttribute(Qt::WA_DeleteOnClose);
+                    self -> setWindowTitle(QString("选手信息"));
+                    self -> setWindowFlags(Qt::WindowCloseButtonHint);
+                    self -> resize(200, 150);
+
+                    QTextEdit *text = new QTextEdit();
                     text -> setPlainText(file -> outputData());
-                text -> setReadOnly(1);
+                    text -> setReadOnly(1);
 
-                QPushButton *btnBack = new QPushButton(QString("返回"));
-                connect(btnBack, &QPushButton::pressed, self, &FunctionWindow::close);
+                    QPushButton *btnBack = new QPushButton(QString("返回"));
+                    connect(btnBack, &QPushButton::pressed, self, &FunctionWindow::close);
 
-                QHBoxLayout *hLay1 = new QHBoxLayout;
-                hLay1 -> addStretch();
-                hLay1 -> addWidget(btnBack);
-                hLay1 -> addStretch();
+                    QHBoxLayout *hLay1 = new QHBoxLayout;
+                    hLay1 -> addStretch();
+                    hLay1 -> addWidget(btnBack);
+                    hLay1 -> addStretch();
 
-                QVBoxLayout *vLay1 = new QVBoxLayout;
-                vLay1 -> addWidget(text);
-                vLay1 -> addLayout(hLay1);
+                    QVBoxLayout *vLay1 = new QVBoxLayout;
+                    vLay1 -> addWidget(text);
+                    vLay1 -> addLayout(hLay1);
 
-                self -> setLayout(vLay1);
+                    self -> setLayout(vLay1);
 
-                self -> exec();
+                    self -> exec();
+                }
+
             }
 
 
@@ -353,43 +376,54 @@ void FunctionWindow::initSlots()
     connect(btnSort, &QPushButton::pressed,
             [this]()
             {
-                QDialog *self = new QDialog;
-                self -> setAttribute(Qt::WA_DeleteOnClose);
-                self -> setWindowTitle(QString("选手排名"));
-                self -> setWindowFlags(Qt::WindowCloseButtonHint);
-                self -> resize(200, 150);
+                if (!flgInfo)
+                    QMessageBox::critical(this, QString("错误"), QString("尚未录入选手信息！"), QMessageBox::Ok);
 
-                QTextEdit *text = new QTextEdit();
-                if(!flag)
-                    text -> setText(QString("尚未给选手评分！"));
                 else
-                    text -> setText(QString("选手排名如下：\n"
-                                        "------------"));
-                for (int i = 0; i < (file -> arrSize); i ++)
-                    text -> append(QString("第")
-                                         + QString::number(i + 1)
-                                         + QString("名：")
-                                         + file -> arrName[i]
-                                         + QString("  ")
-                                         + QString::number(file -> arrAverge[i])
-                                         + QString("分"));
-                text -> setReadOnly(1);
+                {
+                    if (!flgScore)
+                        QMessageBox::critical(this, QString("错误"), QString("尚未录入选手成绩！"), QMessageBox::Ok);
 
-                QPushButton *btnBack = new QPushButton(QString("返回"));
-                connect(btnBack, &QPushButton::pressed, self, &FunctionWindow::close);
+                    else
+                    {
+                        QDialog *self = new QDialog;
+                        self -> setAttribute(Qt::WA_DeleteOnClose);
+                        self -> setWindowTitle(QString("选手排名"));
+                        self -> setWindowFlags(Qt::WindowCloseButtonHint);
+                        self -> resize(200, 150);
 
-                QHBoxLayout *hLay1 = new QHBoxLayout;
-                hLay1 -> addStretch();
-                hLay1 -> addWidget(btnBack);
-                hLay1 -> addStretch();
+                        QTextEdit *text = new QTextEdit();
+                        text -> setText(QString("选手排名如下：\n"
+                                                "------------"));
+                        for (int i = 0; i < (file -> arrSize); i ++)
+                            text -> append(QString("第")
+                                                 + QString::number(i + 1)
+                                                 + QString("名：")
+                                                 + file -> arrName[i]
+                                                 + QString("  ")
+                                                 + QString::number(file -> arrAverge[i])
+                                                 + QString("分"));
+                        text -> setReadOnly(1);
 
-                QVBoxLayout *vLay1 = new QVBoxLayout;
-                vLay1 -> addWidget(text);
-                vLay1 -> addLayout(hLay1);
+                        QPushButton *btnBack = new QPushButton(QString("返回"));
+                        connect(btnBack, &QPushButton::pressed, self, &FunctionWindow::close);
 
-                self -> setLayout(vLay1);
+                        QHBoxLayout *hLay1 = new QHBoxLayout;
+                        hLay1 -> addStretch();
+                        hLay1 -> addWidget(btnBack);
+                        hLay1 -> addStretch();
 
-                self -> exec();
+                        QVBoxLayout *vLay1 = new QVBoxLayout;
+                        vLay1 -> addWidget(text);
+                        vLay1 -> addLayout(hLay1);
+
+                        self -> setLayout(vLay1);
+
+                        self -> exec();
+                    }
+
+                }
+
             }
 
 
