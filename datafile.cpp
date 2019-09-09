@@ -27,7 +27,7 @@ void DataFile::inputData(QString *name, QString *sex, QString *age)
     pFile -> open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
     pFile -> write("-----------------\n"
                   "编号：");
-    pFile -> putChar(char(number + '0'));
+    pFile -> putChar(char(number));
     pFile -> write("\n姓名：");
     pFile -> write(name -> toUtf8());
     pFile -> write("\n性别：");

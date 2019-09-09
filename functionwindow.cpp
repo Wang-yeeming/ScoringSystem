@@ -75,7 +75,7 @@ void FunctionWindow::initUI()
     vLay1 -> addLayout(hLay5);
     //vLay1 -> addStretch();
 
-    QImage *icon = new QImage("C:\\Users\\lenovo\\Desktop\\QtCode\\day03\\ScoringSystem\\icon.png");
+    QImage *icon = new QImage("./icon.png");
     QImage *miniIcon = new QImage();
     *miniIcon = icon -> scaled(200, 200, Qt::KeepAspectRatio);
     QLabel *pIcon = new QLabel();
