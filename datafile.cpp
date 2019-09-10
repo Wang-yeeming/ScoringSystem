@@ -25,17 +25,16 @@ void DataFile::inputData(QString *name, QString *sex, QString *age)
 
     QFile *pFile = new QFile("./DataFile.txt");
     pFile -> open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
-    pFile -> write("-----------------\n"
-                  "编号：");
-    pFile -> putChar(char(number));
-    pFile -> write("\n姓名：");
-    pFile -> write(name -> toUtf8());
-    pFile -> write("\n性别：");
-    pFile -> write(sex -> toUtf8());
-    pFile -> write("\n年龄：");
-    pFile -> write(age -> toUtf8());
-    pFile -> write("\n");
-    ;
+
+    QTextStream in(pFile);
+    in.setCodec("utf-8");
+    in << QString("-----------------")
+        << QString("\n编号：") << number
+        << QString("\n姓名：") << name -> toUtf8()
+        << QString("\n性别：") << sex -> toUtf8()
+        << QString("\n年龄：") << age -> toUtf8()
+        << endl;
+
     pFile -> close();
 }
 
